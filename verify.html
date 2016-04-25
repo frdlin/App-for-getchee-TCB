@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta http-equiv="CACHE-CONTROL" content="NO-CACHE" />
+    <meta http-equiv="PRAGMA" content="NO-CACHE" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+    <title>Location Verify</title>
+    <link rel="stylesheet" href="css/jquery.mobile-1.3.2.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- leaflet ¥²¶·©ñ¦b jQuery «e­± -->
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <link rel="stylesheet" href="leaflet/label/leaflet.label.css" />
+    <link rel="stylesheet" href="leaflet/usermarker/leaflet.usermarker.css" />
+
+    <style>
+        html, body
+        {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        
+        #map-canvas
+        {
+            margin: 0;
+            padding: 0;
+            /*height: 100%;
+            width: 100%;*/
+        }
+        
+        #mapContent
+        {
+            position: absolute;
+            top: 0px;
+            right: 0;
+            bottom: 0px;
+            left: 0;
+            padding: 0 !important;
+            height: 100%;
+        }
+
+		#mapPanel
+		{
+			position: absolute;
+			top: 0px;
+			left: 50px;
+			margin: 0px;
+			z-index: 5;
+			background-color: #fff;
+			padding: 0px;
+			border: 1px solid #999;
+		}
+    </style>
+
+    <script type="text/javascript" src="leaflet/leaflet.js"></script>
+    <script type="text/javascript" src="leaflet/label/leaflet.label.js"></script>
+    <script type="text/javascript" src="leaflet/usermarker/leaflet.usermarker.js"></script>
+    <script type="text/javascript" src="leaflet/editable-polyline/leaflet-editable-polyline.js"></script>
+    <!-- leaflet ¥²¶·©ñ¦b jQuery «e­± -->
+
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery.blockUI.js"></script>
+    <script type="text/javascript" src="js/jquery.mobile-1.3.2.min.js"></script>
+
+    <!-- Âà¹Ï -->
+	<script type="text/javascript" src="js/jquery-css-transform.js"></script>
+    <script type="text/javascript" src="js/jquery-animate-css-rotate-scale.js"></script>
+    <script type="text/javascript" src="js/rotate3Di.js"></script>
+    <!-- Âà¹Ï -->
+
+    <script type="text/javascript" src="js/common.js"></script>
+    <script type="text/javascript" src="js/syncutil.js"></script>
+    <script type="text/javascript" src="js/verify.js"></script>
+    <script type="text/javascript" src="js/offlineMap.js"></script>
+    
+</head>
+<body>
+    <div class="wrap" data-role='page' id='verify'>
+        <div class="content_title" data-role='header' data-position='fixed'>
+            <span>Location Verify</span><span class="surveyor_id">Surveyor</span>
+        </div>
+
+        <div class="content_container" data-role='content'>
+            <div class="content" data-role='fieldcontain'>
+                <table width="100%" cellspacing="10">
+                    <tr>
+                        <td colspan="3" class="center"><h2>XÁC NHẬN ĐỊA CHỈ</h2></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Thành phố
+                        </td>
+                        <td colspan="2">
+                            <input type="text" id="objid" readonly="readonly" disabled="disabled" value="Hà Nội"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Quận
+                        </td>
+                        <td colspan="2">
+                            <input type="text" id="objid" readonly="readonly" disabled="disabled" value="Hai Bà Trưng"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Địa chỉ
+                        </td>
+                        <td colspan="2">
+                            <input type="text" id="objid" readonly="readonly" disabled="disabled" value="BDS TAI NGO 259/9 PHO VONG, TO 69, P ĐỒNG TÂM Q Hai Bà Trưng, TP HÀ NỘI" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Loại địa chỉ
+                        </td>
+                        <td colspan="2">
+                            <select id="address_e">
+                                <option value="Nơi sinh sống">Nơi sinh sống</option>
+                                <option value="Cơ quan">Cơ quan</option>
+                                <option value="HKTT">HKTT</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="30%">
+                            Lấy tọa độ
+                        </td>
+                        <td width="35%">
+                            <input type="text" id="x_lat" readonly="readonly" disabled="disabled" />
+                        </td>
+                        <td width="35%">
+                            <input type="text" id="y_long" readonly="readonly" disabled="disabled" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        </td>
+                        <td colspan="2" width="70%">
+                            <input id='Get_FromGPS' value="Thông qua GPS/Internet" type="button" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <div id='divstartVerify'>
+                                <input id='startVerify' value="Bắt đầu xác minh" type="button" /></div>
+                        </td>
+                    </tr>
+                </table>
+                <div id="verify_hidden">
+                <hr />
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td width="30%">
+                                Có gặp đc KH hay k
+                            </td>
+                            <td colspan="2" width="70%">
+                                <select id="met_customer">
+	                                <option selected="" value="no">Không</option>
+	                                <option value="yes">Có</option>
+	                            </select>
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="100%" cellspacing="10" id="q1_3_1">
+                        <tr>
+                            <td>
+                                Lý do k gặp đc KH
+                            </td>
+                            <td colspan="2">
+                                <select id="u57_input" title="Select one and jump to &quot;Building attached to land&quot; form">
+                                    <option value="K có nhà">K có nhà</option>
+                                    <option value="Trốn tránh">Trốn tránh</option>
+                                    <option value="Ng thứ 3 mở cửa">Ng thứ 3 mở cửa</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Quan hệ của ng trả lời phỏng vấn với KH
+                            </td>
+                            <td colspan="2">
+                                <select title="Select one and jump to &quot;Building attached to land&quot; form">
+                                    <option value="Bố">Bố</option>
+                                    <option value="Mẹ">Mẹ</option>
+                                    <option value="Vợ">Vợ</option>
+                                    <option value="Con">Con</option>
+                                    <option value="Anh em">Anh em</option>
+                                    <option value="Chị em">Chị em</option>
+                                    <option value="Họ hàng">Họ hàng</option>
+                                    <option value="Ng thuê nhà">Ng thuê nhà</option>
+                                    <option value="Ng lạ">Ng lạ</option>
+                                    <option value="Hàng xóm">Hàng xóm</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="30%">ảnh lưu ý</td>
+                            <td width="50%">
+                                <select>
+                                    <option value="Ảnh của ng mở cửa/trả lời">Ảnh của ng mở cửa/trả lời</option>
+                                    <option value="Ảnh KH">Ảnh KH</option>
+                                    <option value="Ảnh hiện trường">Ảnh hiện trường</option>
+                                </select>
+                            </td>
+                            <td width="20%">
+                                <input type="button" id="takePhoto" class="camera ui-btn-hidden" data-disabled="false">
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="100%" cellspacing="10" id="q1_3_2">
+                        <tr>
+                            <td width="30%">ảnh lưu ý</td>
+                            <td width="50%">
+                                <select>
+                                    <option value="Ảnh KH">Ảnh KH</option>
+                                    <option value="Ảnh hiện trường">Ảnh hiện trường</option>
+                                </select>
+                            </td>
+                            <td width="20%">
+                                <input type="button" id="takePhoto" class="camera ui-btn-hidden" data-disabled="false">
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="3">
+                                <div class="photo_container">
+                                    <img width="100%" height="100%" id="smallImage2" src="" alt="No Photo">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="photoNav">&nbsp;</span>
+                            </td>
+                            <td>
+                                <input type="text"/>
+                            </td>
+                            <td>
+                                <input value="Xóa" id="Delete2" type="button" class="ui-btn-hidden" data-disabled="false">
+                            </td>
+                        </tr>
+                    </table>
+                    <hr />
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="3" class="center"><h2>THÔNG TIN KHÁCH HÀNG</h2></td>
+                        </tr>
+                        <tr>
+                            <td width="30%">
+                                Họ tên KH
+                            </td>
+                            <td width="70%">
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                CMND KH
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Số ID của KH
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Loại khoản vay
+                            </td>
+                            <td>
+                                <select id="type_of_loan">
+                                    <option selected="" value="unsecured">Tín chấp</option>
+                                    <option value="secured">Thế chấp</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr id="q1_5_1">
+                            <td>
+                                Loại sản phẩm thế chấp
+                            </td>
+                            <td>
+                                <select id="u41_input">
+                                    <option value="AL">AL</option>
+                                    <option value="F1">F1</option>
+                                    <option value="HE">HE</option>
+                                    <option value="HH">HH</option>
+                                    <option value="FL">FL</option>
+                                    <option value="RC">RC</option>
+                                    <option value="MG">MG</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr id="q1_5_2">
+                            <td>
+                                Loại sản phẩm thế chấp
+                            </td>
+                            <td>
+                                <select id="u40_input">
+                                    <option value="F2">F2</option>
+                                    <option value="CC">CC</option>
+                                    <option value="PIL">PIL</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Điện thoại
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Điện thoại 1
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Điện thoại 2
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                    </table>
+                    <hr />
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="2" class="center"><h2>Công việc hiện tại</h2></td>
+                        </tr>
+                        <tr>
+                            <td width="30%">
+                                Loại khoản vay
+                            </td>
+                            <td width="70%">
+                                <select id="current_job">
+                                    <option selected="" value="no">Không</option>
+                                    <option value="yes">Có</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                    <table id="q1_6" width="100%" cellspacing="10">
+                        <tr>
+                            <td width="30%">
+                                Hình thức công viêc
+                            </td>
+                            <td width="70%">
+                                <select>
+                                    <option value="Công chức nhà nước">Công chức nhà nước</option>
+                                    <option value="Tự doanh">Tự doanh</option>
+                                    <option value="Nhân viên vp">Nhân viên vp</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Tên công ty
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Chức vụ
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="GĐ, PGĐ">GĐ, PGĐ</option>
+                                    <option value="Trưởng, phó phòng">Trưởng, phó phòng</option>
+                                    <option value="Nhân viện, chuyên viên">Nhân viện, chuyên viên</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Mức lương
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Tổng thu nhập
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="2" class="center"><h2>Thành phần gia đình</h2></td>
+                        </tr>
+                        <tr>
+                            <td width="30%">
+                                Tình trạng hôn nhân
+                            </td>
+                            <td width="70%">
+                                <select>
+                                    <option value="Single">Single</option>
+                                    <option value="Married">Married</option>
+                                    <option value="Divorced">Divorced</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Số người phụ thuộc
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="Non">Non</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="Trên 3">Trên 3</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="2" class="center"><h2>Thông tin về người đồng trả nợ</h2></td>
+                        </tr>
+                        <tr>
+                            <td width="30%">
+                                Họ tên người đồng trả nợ
+                            </td>
+                            <td width="70%">
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Tên công ty
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Thu nhập
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                    </table>
+                    <hr />
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="2" class="center"><h2>THÔNG TIN VỀ KHOẢN VAY NH</h2></td>
+                        </tr>
+                        <tr>
+                            <td width="30%">
+                                KH có nhớ có nợ quá hạn tại TCB không?
+                            </td>
+                            <td width="70%">
+                                <select>
+                                    <option value="no">Không</option>
+                                    <option selected="" value="yes">Có</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                KH có ý thức trả nợ không?
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="no">Không</option>
+                                    <option selected="" value="yes">Có</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Lý do nợ quá hạn
+                            </td>
+                            <td>
+                                <select id="reason_of_overdue_debt">
+                                    <option value="Làm ăn thua lỗ">Làm ăn thua lỗ</option>
+                                    <option value="KH bị đuổi việc">KH bị đuổi việc</option>
+                                    <option value="KH lừa đảo, bị lừa đảo">KH lừa đảo, bị lừa đảo</option>
+                                    <option value="Do vay ké, vay hộ">Do vay ké, vay hộ</option>
+                                    <option value="KH vi phạm pháp luật">KH vi phạm pháp luật</option>
+                                    <option value="KH bỏ trốn">KH bỏ trốn</option>
+                                    <option value="KH gặp vấn đề về sức khỏe, gia đình">KH gặp vấn đề về sức khỏe, gia đình</option>
+                                    <option value="other">Khác</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr id="q1_8">
+                            <td>
+                                Lý do khác
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Nguồn thu dự kiến
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Thời hạn dự kiến thanh toán
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Số nợ quá hạn
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Tổng dư nợ
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Nợ quá hạn tại các TCTD khác
+                            </td>
+                            <td>
+                                <select>
+                                    <option selected="" value="Có">Có</option>
+                                    <option value="Không">Không</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Số nợ quá hạn tại các TCTD khác
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Lý do nợ quá hạn
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="Làm ăn thua lỗ">Làm ăn thua lỗ</option>
+                                    <option value="KH bị đuổi việc">KH bị đuổi việc</option>
+                                    <option value="KH lừa đảo, bị lừa đảo">KH lừa đảo, bị lừa đảo</option>
+                                    <option value="Do vay ké, vay hộ">Do vay ké, vay hộ</option>
+                                    <option value="KH vi phạm pháp luật">KH vi phạm pháp luật</option>
+                                    <option value="KH bỏ trốn">KH bỏ trốn</option>
+                                    <option value="KH gặp vấn đề về sức khỏe, gia đình">KH gặp vấn đề về sức khỏe, gia đình</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <div class="clear"></div>
+                    </table>
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="2" class="center"><h2>Thông tin về nhóm KH liên quan tại TCB</h2></td>
+                        </tr>
+                        <tr>
+                            <td width="30%">
+                                Có nhóm KH liên quan hay không?
+                            </td>
+                            <td width="70%">
+                                <select>
+                                    <option selected="" value="Có">Có</option>
+                                    <option value="Không">Không</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Họ tên KH liên quan tại TCB
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Tên công ty liên quan tại TCB
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                    </table>
+                    <hr />
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="2" class="center"><h2>TSĐB</h2></td>
+                        </tr>
+                        <tr>
+                            <td width="30%">
+                                Số lượng TSĐB
+                            </td>
+                            <td width="70%">
+                                <select>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Tình trạng tài sản
+                            </td>
+                            <td>
+                                <select id="collateral_status">
+                                    <option selected="" value="status_is_the_same">Hiện trạng phù hợp HĐTC</option>
+                                    <option value="Hiện trạng có thay đổi so với HĐTC">Hiện trạng có thay đổi so với HĐTC</option>
+                                    <option value="Hiện trạng sai khác hoàn toàn so với HĐTC">Hiện trạng sai khác hoàn toàn so với HĐTC</option>
+                                    <option value="TS bị quy hoạch">TS bị quy hoạch</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr id="q1_10">
+                            <td>
+                                Mô tả chi tiết
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Đánh giá giá trị hiện tại của TSĐB
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Người sử dụng TSĐB
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="KH">KH</option>
+                                    <option value="Người thân KH">Người thân KH</option>
+                                    <option value="Bên thứ 3">Bên thứ 3</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Bàn giao tài sản cho ngân hàng
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="Có">Có</option>
+                                    <option value="Lưỡng lự">Lưỡng lự</option>
+                                    <option value="Không">Không</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Khả năng thu giữ tài sản của AMC
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="Có">Có</option>
+                                    <option value="Không">Không</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                    <table>
+                        <tr>
+                            <td width="30%">Ảnh TSĐB</td>
+                            <td width="50%">
+                                <select>
+                                    <option value="Ảnh TSĐB">Ảnh TSĐB</option>
+                                </select>
+                            </td>
+                            <td width="20%">
+                                <input type="button" id="takePhoto" class="camera ui-btn-hidden" data-disabled="false">
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="3">
+                                <div class="photo_container">
+                                    <img width="100%" height="100%" id="smallImage2" src="" alt="No Photo">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="photoNav">&nbsp;</span>
+                            </td>
+                            <td>
+                                <input type="text"/>
+                            </td>
+                            <td>
+                                <input value="Xóa" id="Delete2" type="button" class="ui-btn-hidden" data-disabled="false">
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="2" class="center"><h2>Thông tin về chủ sở hữu TSĐB</h2></td>
+                        </tr>
+                        <tr>
+                            <td width="30%">
+                                Họ tên chủ sở hữu TSĐB
+                            </td>
+                            <td width="70%">
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Di động chủ sở hữu TSĐB
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                    </table>
+                    <table>
+                        <tr>
+                            <td width="30%">Ảnh chủ sở hữu TSĐB</td>
+                            <td width="50%">
+                                <select>
+                                    <option selected="" value="Ảnh chủ sở hữu TSĐB">Ảnh chủ sở hữu TSĐB</option>
+                                </select>
+                            </td>
+                            <td width="20%">
+                                <input type="button" id="takePhoto" class="camera ui-btn-hidden" data-disabled="false">
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td colspan="3">
+                                <div class="photo_container">
+                                    <img width="100%" height="100%" id="smallImage2" src="" alt="No Photo">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="photoNav">&nbsp;</span>
+                            </td>
+                            <td>
+                                <input type="text"/>
+                            </td>
+                            <td>
+                                <input value="Xóa" id="Delete2" type="button" class="ui-btn-hidden" data-disabled="false">
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="100%" cellspacing="10">
+                        <tr>
+                            <td>
+                                <input id='submit' value="Save" type="button" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+	    <div data-role='footer' data-position='fixed' data-id='footerVerify'>
+            <div data-role='navbar'>
+                <ul>
+                    <li style="width:30% !important;"><a href='#selectAddress' class='toAddressPage ui-btn-active'><img src="images/bt-icon-verify.png" alt="Verify"/>Verify</a></li>
+                    <li style="width:30% !important;"><a href='javascript: void(0)' class='doSync'><img src="images/bt-icon-sync.png" alt="Sync"/>Sync</a></li>
+                    <li style="width:30% !important;"><a href='#syncLogPage' class='toSyncLogPage'><img src="images/bt-icon-synclog.png" alt="SyncLog"/>SyncLog</a></li>
+                    <li class="more" style="width:9.5% !important;"><a href="#setup" class="slide_open_button"><img src="images/bt-icon-more.png" alt="More"/></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrap" data-role='page' id='selectAddress'>
+        <div class="content_title" data-role='header'>
+            <span>Location Verify</span><span class="surveyor_id">Surveyor</span>
+        </div>
+
+        <div class="main_container verify_status" data-role='content'>
+            <ul data-role='listview' id='listAddress' data-theme='a'>
+                <li class="icon_container_open">
+                    <a href='#'>
+                        <div class="verify_click_area">
+		    		    <span class="case_title">Open</span>
+		    		    <span class="case_number" id='flag3Count'>0</span>
+                        </div>
+                    </a>
+                    <ul data-role='listview'>
+                        <div>
+                            <div class="content_title" data-role='header' data-position='fixed'>
+                                <span>Open Cases</span><span class="surveyor_id">agent02</span>
+                            </div>
+
+                            <div data-role='content' class="ui-content-synclog">
+                                <div id='Div1'>
+                                    <ul class="synclog_table" id='listFlag3'>
+                                        <li><span class="th_case_id">Collateral ID</span><span class="th_case_add">Address</span><div class="clear"></div></li>
+                                        <li class="td_case"><a href='#' onclick="selectObjid('20283974.2.1', 'D2-D3/26F, BDS TAI NGO 259/9 PHO VONG, TO 69, P ĐỒNG TÂM Q Hai Bà Trưng, TP HÀ NỘI');"><span class="td_case_id">20283974.2.1</span><span class="td_case_add">BDS TAI NGO 259/9 PHO VONG, TO 69, P ĐỒNG TÂM Q Hai Bà Trưng, TP HÀ NỘI</span></a><div class="clear"></div></li>
+                                        <li class="td_case"><a href='#' onclick="selectObjid('20283974.2.1', 'D2-D3/26F, BDS TAI NGO 259/9 PHO VONG, TO 69, P ĐỒNG TÂM Q Hai Bà Trưng, TP HÀ NỘI');"><span class="td_case_id">20283974.2.1</span><span class="td_case_add">BDS TAI NGO 259/9 PHO VONG, TO 69, P ĐỒNG TÂM Q Hai Bà Trưng, TP HÀ NỘI</span></a><div class="clear"></div></li>
+                                        <li class="td_case"><a href='#' onclick="selectObjid('20283974.2.1', 'D2-D3/26F, BDS TAI NGO 259/9 PHO VONG, TO 69, P ĐỒNG TÂM Q Hai Bà Trưng, TP HÀ NỘI');"><span class="td_case_id">20283974.2.1</span><span class="td_case_add">BDS TAI NGO 259/9 PHO VONG, TO 69, P ĐỒNG TÂM Q Hai Bà Trưng, TP HÀ NỘI</span></a><div class="clear"></div></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+	                        <div data-role='footer' data-position='fixed' data-id='footerVerify'>
+                                <div data-role='navbar'>
+                                    <ul>
+                                        <li style="width:30% !important;"><a href='#selectAddress' class='toAddressPage ui-btn-active'><img src="images/bt-icon-verify.png" alt="Verify"/>Verify</a></li>
+                                        <li style="width:30% !important;"><a href='javascript: void(0)' class='doSync'><img src="images/bt-icon-sync.png" alt="Sync"/>Sync</a></li>
+                                        <li style="width:30% !important;"><a href='#syncLogPage' class='toSyncLogPage'><img src="images/bt-icon-synclog.png" alt="SyncLog"/>SyncLog</a></li>
+                                        <li class="more" style="width:9.5% !important;"><a href="#setup" class="slide_open_button"><img src="images/bt-icon-more.png" alt="More"/></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </ul>
+                </li>
+                <div class="clear"></div>
+                <li class="icon_container_incomplete">
+                    <a href='#'>
+                        <div class="verify_click_area">
+		    		    <span class="case_title">Incomplete</span>
+		    		    <span class="case_number" id='flag4Count'>0</span>
+                        </div>
+                    </a>
+                    <ul data-role='listview'>
+                        <div>
+                            <div class="content_title" data-role='header' data-position='fixed'>
+                                <span>Incomplete Cases</span><span class="surveyor_id">Surveyor</span>
+                            </div>
+
+                            <div data-role='content' class="ui-content-synclog">
+                                <div id='Div2'>
+                                    <ul class="synclog_table" id='listFlag4'>
+                                        <li><span class="th_case_id">Collateral ID</span><span class="th_case_add">Address</span><div class="clear"></div></li>
+                                        <li class="td_case"><span class="td_case_id">CaseG007</span><span class="td_case_add">D2-D3/26F, ShenYa Financial Plaza, No. 895, West Yanan Rd., Changning District, Shanghai 200050, China</span><div class="clear"></div></li>
+                                        <li class="td_case"><span class="td_case_id">CaseG007</span><span class="td_case_add">D2-D3/26F, ShenYa Financial Plaza, No. 895, West Yanan Rd., Changning District, Shanghai 200050, China</span><div class="clear"></div></li>
+                                        <li class="td_case"><span class="td_case_id">CaseG007</span><span class="td_case_add">D2-D3/26F, ShenYa Financial Plaza, No. 895, West Yanan Rd., Changning District, Shanghai 200050, China</span><div class="clear"></div></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+	                        <div data-role='footer' data-position='fixed' data-id='footerVerify'>
+                                <div data-role='navbar'>
+                                    <ul>
+                                        <li style="width:30% !important;"><a href='#selectAddress' class='toAddressPage ui-btn-active'><img src="images/bt-icon-verify.png" alt="Verify"/>Verify</a></li>
+                                        <li style="width:30% !important;"><a href='javascript: void(0)' class='doSync'><img src="images/bt-icon-sync.png" alt="Sync"/>Sync</a></li>
+                                        <li style="width:30% !important;"><a href='#syncLogPage' class='toSyncLogPage'><img src="images/bt-icon-synclog.png" alt="SyncLog"/>SyncLog</a></li>
+                                        <li class="more" style="width:9.5% !important;"><a href="#setup" class="slide_open_button"><img src="images/bt-icon-more.png" alt="More"/></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </ul>
+                </li>
+                <div class="clear"></div>
+                <li class="icon_container_saved">
+                    <a href='#'>
+                        <div class="verify_click_area">
+		    		    <span class="case_title">Saved</span>
+		    		    <span class="case_number" id='flag5Count'>0</span>
+                        </div>
+                    </a>
+                    <ul data-role='listview'>
+                        <div>
+                            <div class="content_title" data-role='header' data-position='fixed'>
+                                <span>Saved Cases</span><span class="surveyor_id">Surveyor</span>
+                            </div>
+
+                            <div data-role='content' class="ui-content-synclog">
+                                <div id='Div3'>
+                                    <ul class="synclog_table" id='listFlag5'>
+                                        <li><span class="th_case_id">Collateral ID</span><span class="th_case_add">Address</span><div class="clear"></div></li>
+                                        <li class="td_case"><span class="td_case_id">CaseG007</span><span class="td_case_add">D2-D3/26F, ShenYa Financial Plaza, No. 895, West Yanan Rd., Changning District, Shanghai 200050, China</span><div class="clear"></div></li>
+                                        <li class="td_case"><span class="td_case_id">CaseG007</span><span class="td_case_add">D2-D3/26F, ShenYa Financial Plaza, No. 895, West Yanan Rd., Changning District, Shanghai 200050, China</span><div class="clear"></div></li>
+                                        <li class="td_case"><span class="td_case_id">CaseG007</span><span class="td_case_add">D2-D3/26F, ShenYa Financial Plaza, No. 895, West Yanan Rd., Changning District, Shanghai 200050, China</span><div class="clear"></div></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+	                        <div data-role='footer' data-position='fixed' data-id='footerVerify'>
+                                <div data-role='navbar'>
+                                    <ul>
+                                        <li style="width:30% !important;"><a href='#selectAddress' class='toAddressPage ui-btn-active'><img src="images/bt-icon-verify.png" alt="Verify"/>Verify</a></li>
+                                        <li style="width:30% !important;"><a href='javascript: void(0)' class='doSync'><img src="images/bt-icon-sync.png" alt="Sync"/>Sync</a></li>
+                                        <li style="width:30% !important;"><a href='#syncLogPage' class='toSyncLogPage'><img src="images/bt-icon-synclog.png" alt="SyncLog"/>SyncLog</a></li>
+                                        <li class="more" style="width:9.5% !important;"><a href="#setup" class="slide_open_button"><img src="images/bt-icon-more.png" alt="More"/></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+	    <div data-role='footer' data-position='fixed' data-id='footerVerify'>
+            <div data-role='navbar'>
+                <ul>
+                    <li style="width:30% !important;"><a href='#selectAddress' class='toAddressPage ui-btn-active' class='ui-disabled'><img src="images/bt-icon-verify.png" alt="Verify"/>Verify</a></li>
+                    <li style="width:30% !important;"><a href='javascript: void(0)' class='doSync'><img src="images/bt-icon-sync.png" alt="Sync"/>Sync</a></li>
+                    <li style="width:30% !important;"><a href='#syncLogPage' class='toSyncLogPage'><img src="images/bt-icon-synclog.png" alt="SyncLog"/>SyncLog</a></li>
+                    <li class="more" style="width:9.5% !important;"><a href="#setup" class="slide_open_button"><img src="images/bt-icon-more.png" alt="More"/></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div data-role='page' id="offlineMap" class="offline-map">
+        <div data-role='content' id='mapContent'>
+            <div id="mapPanel">
+                <table>
+                    <tr>
+                        <td>
+                            <input type='checkbox' id='checkCompass' /><label for='checkCompass'>Compass</label>
+                        </td>
+                        <td>
+                            <input type='checkbox' id='checkPosition' /><label for='checkPosition'>Position</label>
+                        </td>
+                        <td>
+                            <input type='checkbox' id='magnifier' /><label for='magnifier'>Magnifier</label>
+                        </td>
+                        <td>
+                            <input type='checkbox' id='drawPolygon' /><label for='drawPolygon'>Draw Polygon</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan='2'>
+                            <div id='status'>
+                            </div>
+                        </td>
+                        <td>
+                            <div id='heading'>
+                            </div>
+                        </td>
+                        <td>
+                            <input type='checkbox' id='lockMap' /><label for='lockMap'>Lock Map</label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="map-canvas">
+            </div>
+        </div>
+    </div>
+
+    <div class="wrap_black" data-role='page' data-add-back-btn='true' id='setup'>
+        <div class="slide_menu" data-role='content'>
+            <div class="menu_close"><a href="#" onclick='history.go(-1);' id='menuClose'><img src="images/bt-icon-menuclose.png" alt='menuclose' /></a></div>
+            <div class="content">
+                <a href='register.html' id='toRegisterPage' data-role='button' data-ajax='false'>Location Register</a>
+                <a href='javascript: void(0)' data-role='button' id='initialize'>Initialize</a>
+                <a href='#setAgentDialog' data-rel='dialog' data-role='button' id='setAgent'>Set Agent ID</a>
+                <a href='about.html' id='toAboutPage' data-role='button' rel='external'>About</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup" data-role='page' id='setAgentDialog'>
+        <div class="popup-title" data-role='header'>Set Agent</div>
+
+        <div class="content popup-content" data-role='content'>
+            <table width="100%" cellspacing="10">
+                <tr>
+                    <td colspan="2"><input id='agt_id' type="text" class="ui-input-text" placeholder="Surveyor ID"/></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input id='agtPass' type="text" class="ui-input-text" placeholder="Password"/></td>
+                </tr>
+                <tr>
+                    <td width="50%"><input id="cancel" value="Cancel" type="button" onclick='history.go(-1);' /></td>
+                    <td width="50%"><input id='setAgt_Id' value="Submit" type="button" /></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div data-role='page' id='syncLogPage'>
+        <div class="content_title" data-role='header' data-position='fixed'>
+            <span>Sync Log</span><span class="surveyor_id">Surveyor</span>
+        </div>
+
+        <div data-role='content' class="ui-content-synclog">
+            <div id='LogContent'>
+                 <table class="synclog_table" cellspacing="1">
+                    <tr>
+                        <th width="23%">Client ID</th>
+                        <th width="31%">Ref No</th>
+                        <th width="23%">Photo Time</th>
+                        <th width="23%">Sync Time</th>
+                    </tr>
+                    <tr>
+                        <td>Mega Bank</td>
+                        <td>Case G0061</td>
+                        <td>2014-07-30 06:26:54</td>
+                        <td>2014-07-30 06:26:54</td>
+                    </tr>
+                    <tr>
+                        <td>Mega Bank</td>
+                        <td>Case G0061</td>
+                        <td>2014-07-30 06:26:54</td>
+                        <td>2014-07-30 06:26:54</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+	    <div data-role='footer' data-position='fixed' data-id='footerVerify'>
+            <div data-role='navbar'>
+                <ul>
+                    <li style="width:30% !important;"><a href='#selectAddress' class='toAddressPage'><img src="images/bt-icon-verify.png" alt="Verify"/>Verify</a></li>
+                    <li style="width:30% !important;"><a href='javascript: void(0)' class='doSync'><img src="images/bt-icon-sync.png" alt="Sync"/>Sync</a></li>
+                    <li style="width:30% !important;"><a href='#syncLogPage' class='toSyncLogPage ui-btn-active' class='ui-disabled'><img src="images/bt-icon-synclog.png" alt="SyncLog"/>SyncLog</a></li>
+                    <li class="more" style="width:9.5% !important;"><a href="#setup" class="slide_open_button"><img src="images/bt-icon-more.png" alt="More"/></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div data-role='page' id='loginPage'>
+        <div data-role='content'>
+        </div>
+    </div>
+</body>
+</html>
