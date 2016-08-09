@@ -1,5 +1,5 @@
 # TCB-App-UI
 ## Description
-Android UI App
+Android App
 ## Skills
 HTML5, CSS3, Cordova, JQuery Mobile
